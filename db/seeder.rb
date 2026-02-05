@@ -1,6 +1,6 @@
 require 'sqlite3'
 
-db = SQLite3::Database.new("databas.db")
+db = SQLite3::Database.new("recepies.db")
 
 
 def seed!(db)
@@ -15,21 +15,21 @@ def seed!(db)
 end
 
 def drop_tables(db)
-  db.execute('DROP TABLE IF EXISTS exempel')
+  db.execute('DROP TABLE IF EXISTS recepies')
 end
 
 def create_tables(db)
-  db.execute('CREATE TABLE exempel (
+  db.execute('CREATE TABLE recepies (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              name TEXT NOT NULL, 
+              title TEXT NOT NULL, 
               description TEXT,
-              state BOOLEAN)')
+              ingriedients TEXT,
+              instructions TEXT)')
 end
 
 def populate_tables(db)
-  db.execute('INSERT INTO exempel (name, description, state) VALUES ("Köp mjölk", "3 liter mellanmjölk, eko",false)')
-  db.execute('INSERT INTO exempel (name, description, state) VALUES ("Köp julgran", "En rödgran",false)')
-  db.execute('INSERT INTO exempel (name, description, state) VALUES ("Pynta gran", "Glöm inte lamporna i granen och tomten",false)')
+  db.execute('INSERT INTO recepies (title, description, ingriedients, instructions) VALUES ("Pannkakor", "En klassisk svensk maträtt. kan serveras med grädde och sylt","2 1/2 dl mjöl \n3 st ägg \n6 dl mjölk", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. Låt smeten vila ca 10 minuter. \nStek tunna pannkakor i lite smör, för varje pannkaka, i en stek- eller pannkakspanna.")')
+  
 end
 
 
