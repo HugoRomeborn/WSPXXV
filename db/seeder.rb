@@ -16,6 +16,8 @@ end
 
 def drop_tables(db)
   db.execute('DROP TABLE IF EXISTS recepies')
+  db.execute('DROP TABLE IF EXISTS ingriedients')
+  db.execute('DROP TABLE IF EXISTS rel_recepie_ingriedients')
 end
 
 def create_tables(db)
@@ -34,12 +36,12 @@ def create_tables(db)
 end
 
 def populate_tables(db)
-  db.execute('INSERT INTO recepies (title, description, ingriedients, instructions) VALUES ("Pannkakor", "En klassisk svensk maträtt. kan serveras med grädde och sylt", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. Låt smeten vila ca 10 minuter.\nStek tunna pannkakor med lite smör för varje pannkaka i en stek- eller pannkakspanna.")')
+  db.execute('INSERT INTO recepies (title, description, instructions) VALUES ("Pannkakor", "En klassisk svensk maträtt. Kan serveras med grädde och sylt", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. Låt smeten vila ca 10 minuter.\nStek tunna pannkakor med lite smör för varje pannkaka i en stek- eller pannkakspanna.")')
 
-  db.execute('INSERT INTO ingriedients ingriedient VALUES mjöl')
-  db.execute('INSERT INTO ingriedients ingriedient VALUES mjölk')
-  db.execute('INSERT INTO ingriedients ingriedient VALUES ägg')
-  db.execute('INSERT INTO ingriedients ingriedient VALUES salt')
+  db.execute('INSERT INTO ingriedients (ingriedient) VALUES ("mjöl")')
+  db.execute('INSERT INTO ingriedients (ingriedient) VALUES ("mjölk")')
+  db.execute('INSERT INTO ingriedients (ingriedient) VALUES ("ägg")')
+  db.execute('INSERT INTO ingriedients (ingriedient) VALUES ("salt")')
 
   db.execute('INSERT INTO rel_recepie_ingriedients (recepie_id, ingriedient_id, amount) VALUES (1, 1, "3 dl")')
   db.execute('INSERT INTO rel_recepie_ingriedients (recepie_id, ingriedient_id, amount) VALUES (1, 2, "6 dl")')
