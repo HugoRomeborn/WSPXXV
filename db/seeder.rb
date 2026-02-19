@@ -23,13 +23,29 @@ def create_tables(db)
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               title TEXT NOT NULL, 
               description TEXT,
-              ingriedients TEXT,
               instructions TEXT)')
+  db.execute('CREATE TABLE ingriedients (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              ingriedient TEXT NOT NULL)')
+  db.execute('CREATE TABLE rel_recepie_ingriedients (
+              recepie_id INTEGER NOT NULL,
+              ingriedient_id INTEGER NOT NULL,
+              Amount TEXT)')
 end
 
 def populate_tables(db)
-  db.execute('INSERT INTO recepies (title, description, ingriedients, instructions) VALUES ("Pannkakor", "En klassisk svensk maträtt. kan serveras med grädde och sylt","2 1/2 dl mjöl \n3 st ägg \n6 dl mjölk", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. Låt smeten vila ca 10 minuter. \nStek tunna pannkakor i lite smör, för varje pannkaka, i en stek- eller pannkakspanna.")')
-  
+  db.execute('INSERT INTO recepies (title, description, ingriedients, instructions) VALUES ("Pannkakor", "En klassisk svensk maträtt. kan serveras med grädde och sylt", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. Låt smeten vila ca 10 minuter.\nStek tunna pannkakor med lite smör för varje pannkaka i en stek- eller pannkakspanna.")')
+
+  db.execute('INSERT INTO ingriedients ingriedient VALUES mjöl')
+  db.execute('INSERT INTO ingriedients ingriedient VALUES mjölk')
+  db.execute('INSERT INTO ingriedients ingriedient VALUES ägg')
+  db.execute('INSERT INTO ingriedients ingriedient VALUES salt')
+
+  db.execute('INSERT INTO rel_recepie_ingriedients (recepie_id, ingriedient_id, amount) VALUES (1, 1, "3 dl")')
+  db.execute('INSERT INTO rel_recepie_ingriedients (recepie_id, ingriedient_id, amount) VALUES (1, 2, "6 dl")')
+  db.execute('INSERT INTO rel_recepie_ingriedients (recepie_id, ingriedient_id, amount) VALUES (1, 3, "3 st")')
+  db.execute('INSERT INTO rel_recepie_ingriedients (recepie_id, ingriedient_id, amount) VALUES (1, 4, "1 nypa")')
+
 end
 
 
