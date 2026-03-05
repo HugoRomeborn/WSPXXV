@@ -9,5 +9,21 @@ require_relative './model.rb'
 get '/recepie/:id' do 
   recepie_id = params[:id]
   
-  fetch_recepie()
+  @recepie = fetch_recepie(recepie_id)
+  p @recepie
+  slim(:recepie)
 end
+
+get '/' do
+  @recepies = all_recepies()
+
+  slim(:index)
+
+end
+
+get '/create/recepie' do
+  
+  slim(:create_recepie)
+end 
+
+

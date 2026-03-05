@@ -36,7 +36,7 @@ def create_tables(db)
 end
 
 def populate_tables(db)
-  db.execute('INSERT INTO recepies (title, description, instructions) VALUES ("Pannkakor", "En klassisk svensk maträtt. Kan serveras med grädde och sylt", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. Låt smeten vila ca 10 minuter.\nStek tunna pannkakor med lite smör för varje pannkaka i en stek- eller pannkakspanna.")')
+  db.execute('INSERT INTO recepies (title, description, instructions) VALUES ("Pannkakor", "En klassisk svensk maträtt. Kan serveras med grädde och sylt", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. Låt smeten vila ca 10 minuter. Stek tunna pannkakor med lite smör för varje pannkaka i en stek- eller pannkakspanna.")')
 
   db.execute('INSERT INTO ingriedients (ingriedient) VALUES ("mjöl")')
   db.execute('INSERT INTO ingriedients (ingriedient) VALUES ("mjölk")')

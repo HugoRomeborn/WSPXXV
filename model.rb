@@ -21,3 +21,8 @@ def fetch_recepie(id)
 
   return recepie
 end
+
+def all_recepies()
+  db = db()
+  db.execute("SELECT * FROM recepies")
+end

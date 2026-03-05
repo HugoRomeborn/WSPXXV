@@ -1,0 +1,10 @@
+h1 Receptsidan 
+
+section
+    - @recepies.each do |recepie|
+        a href="recepie/#{recepie["id"]}"
+            div
+                h2  #{recepie["title"]}
+                p  #{recepie["description"]}
+                hr
+

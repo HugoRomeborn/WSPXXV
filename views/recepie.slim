@@ -1,0 +1,9 @@
+h1 #{@recepie["title"]} 
+
+p= @recepie["description"]
+
+ul 
+    -@recepie["ingriedients"].each do |ingredient| 
+        li=ingredient 
+        hr
+p= @recepie["instructions"]
