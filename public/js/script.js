@@ -1,6 +1,6 @@
 function addIngredient() {
 
-    const container = document.getElementById("ingredients");
+    const container = document.getElementById("ingredients              ");
 
     const div = document.createElement("div");
     div.className = "ingredient";

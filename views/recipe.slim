@@ -1,0 +1,17 @@
+h1 #{@recipe["title"]} 
+
+-@recipe["description"].each do |descript|
+    p=descript
+    br
+
+ul 
+    -@recipe["ingredients"].each do |ingredient| 
+        li=(ingredient["amount"] + " " + ingredient["ingredient"])
+        hr
+-@recipe["instructions"].each do |instruction|
+    p=instruction
+
+form action="/recipe/#{@recipe["id"]}/delete" method="post" 
+    input type="submit" value="Delete"
+form action="/recipe/#{@recipe["id"]}/edit" method="get" 
+    input type="submit" value="Edit"
