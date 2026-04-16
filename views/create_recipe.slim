@@ -1,7 +1,7 @@
 section
   h1 Ladda upp nytt recept 
 
-  form action="/recipe/create" method="post" 
+  form action="/recipe/create" method="post" enctype="multipart/form-data"
     input type="text" name="title" placeholder="Titel"
     br/
     textarea name="description" cols="80" placeholder="Beskrivning"
@@ -16,10 +16,15 @@ section
     br/
     textarea name="instructions" cols="80" placeholder="Instruktioner"
     br/
+    label for="image" Visa en bild på maten:
+    br/
+    input type="file" id="image" name="image" accept="image/png, image/jpeg"
+    br/
     input type="submit" value="post"
 
   script type="text/javascript"
     |
+      // funktion för att lägga till ingrediensfält
       window.addIngredient = function() {
         const container = document.getElementById("ingredients");
 
@@ -35,6 +40,8 @@ section
         container.appendChild(div);
       };
 
+      // Funktion för att ta bort ingrediens
+
       window.removeIngredient = function(button) {
-        button.parentElement.remove();
+        button.parentElement.remove(); 
       };

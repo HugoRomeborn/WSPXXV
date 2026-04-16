@@ -11,7 +11,14 @@ html lang="sv"
         - else 
             form action="/login" method="get" 
                 input type="submit" value="Logga in"
+        form action="/" method="get" 
+            input type="submit" value="Hem"
+        -if @user
+            form action="/user/#{@user["user_id"]}" method="get" 
+                input type="submit" value="Profil"
+        
         ==yield
+
 
     
         

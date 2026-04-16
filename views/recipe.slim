@@ -1,17 +1,30 @@
-h1 #{@recipe["title"]} 
-
+h1 =@recipe["title"] 
+form action="/user/#{@recipe["user_id"]}" method="GET"
+    input type="submit" value="Av #{@recipe["username"]}"
+br/
+img src="#{@recipe["image_link"]}" alt="image"/
 -@recipe["description"].each do |descript|
     p=descript
     br
 
+h2 Ingredienser
+hr/ 
 ul 
     -@recipe["ingredients"].each do |ingredient| 
         li=(ingredient["amount"] + " " + ingredient["ingredient"])
         hr
--@recipe["instructions"].each do |instruction|
-    p=instruction
 
-form action="/recipe/#{@recipe["id"]}/delete" method="post" 
-    input type="submit" value="Delete"
-form action="/recipe/#{@recipe["id"]}/edit" method="get" 
-    input type="submit" value="Edit"
+h2 Instruktioner 
+hr/
+ol
+    -@recipe["instructions"].each do |instruction|
+        li=instruction
+
+
+
+
+-if @user && (@user["user_id"] == @recipe["user_id"] || @user["user_id"] == 1)
+    form action="/recipe/#{@recipe["id"]}/delete" method="post" 
+        input type="submit" value="Delete"
+    form action="/recipe/#{@recipe["id"]}/edit" method="get" 
+        input type="submit" value="Edit"

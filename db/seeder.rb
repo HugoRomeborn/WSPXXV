@@ -1,10 +1,11 @@
 require 'sqlite3'
+require 'bcrypt'
 
 db = SQLite3::Database.new("recipes.db")
 
 
 def seed!(db)
-  puts "Using db file: db/todos.db"
+  puts "Using db file: db/recipe.db"
   puts "🧹 Dropping old tables..."
   drop_tables(db)
   puts "🧱 Creating tables..."
@@ -28,7 +29,8 @@ def create_tables(db)
               title TEXT NOT NULL, 
               description TEXT,
               instructions TEXT,
-              user_id INTEGER NOT NULL)')
+              user_id INTEGER NOT NULL,
+              image_link TEXT)')
   db.execute('CREATE TABLE ingredients (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               ingredient TEXT NOT NULL)')
@@ -46,7 +48,7 @@ def create_tables(db)
 end
 
 def populate_tables(db)
-  db.execute('INSERT INTO recipes (title, description, instructions, user_id) VALUES ("Pannkakor", "En klassisk svensk maträtt. Kan serveras med grädde och sylt", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. \r\nLåt smeten vila ca 10 minuter. Stek tunna pannkakor med lite smör för varje pannkaka i en stek- eller pannkakspanna.", 1)')
+  db.execute('INSERT INTO recipes (title, description, instructions, user_id, image_link) VALUES ("Pannkakor", "En klassisk svensk maträtt. Kan serveras med grädde och sylt", "Blanda mjöl och salt i en bunke. Vispa i hälften av mjölken och vispa till en slät smet. Vispa i resten av mjölken och äggen. \r\nLåt smeten vila ca 10 minuter. Stek tunna pannkakor med lite smör för varje pannkaka i en stek- eller pannkakspanna.", 1, "/IMG/user_images/there0.png")')
 
   db.execute('INSERT INTO ingredients (ingredient) VALUES ("mjöl")')
   db.execute('INSERT INTO ingredients (ingredient) VALUES ("mjölk")')
@@ -57,6 +59,9 @@ def populate_tables(db)
   db.execute('INSERT INTO rel_recipe_ingredients (recipe_id, ingredient_id, amount) VALUES (1, 2, "6 dl")')
   db.execute('INSERT INTO rel_recipe_ingredients (recipe_id, ingredient_id, amount) VALUES (1, 3, "3 st")')
   db.execute('INSERT INTO rel_recipe_ingredients (recipe_id, ingredient_id, amount) VALUES (1, 4, "1 nypa")')
+  
+  pwd_digest = BCrypt::Password.create("admintest")
+  db.execute("INSERT INTO users(username, pwd_digest) VALUES(?,?)", ["admin", pwd_digest])
 end
 
 

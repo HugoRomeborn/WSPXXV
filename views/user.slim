@@ -1,0 +1,21 @@
+h1 = @viewed_user["username"]
+
+- if @user && @user != @viewed_user
+    - if @followers.include?(@user)
+        form action="/unfollow/#{@viewed_user["user_id"]}" method="post" 
+            input type="submit" value="Avfölj"
+    -else
+        form action="/follow/#{@viewed_user["user_id"]}" method="post" 
+            input type="submit" value="Följ"
+form action="/followers/#{@viewed_user["user_id"]}" method="get" 
+    input type="submit" value="Följare: #{@followers.length}"
+form action="/follows/#{@viewed_user["user_id"]}" method="get" 
+    input type="submit" value="Följer: #{@follows.length}"
+
+h2 Recipes 
+hr/
+- @recipes.each do |recipe|
+    a href="/recipe/#{@viewed_user["user_id"]}" 
+        h3= recipe["title"]
+        p= recipe["description"]
+        hr/

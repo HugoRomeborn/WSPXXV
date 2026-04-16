@@ -1,0 +1,12 @@
+h1 = @type
+
+- if @type == "Followers"
+    ul
+        - @follow.each do |followish|
+            a href="/user/#{followish["user_id"]}" 
+                li = followish["username"]
+- elsif @type == "Following"
+    ul
+        - @follow.each do |followish|
+            a href="/user/#{followish["user_id"]}" 
+                li = followish["username"]

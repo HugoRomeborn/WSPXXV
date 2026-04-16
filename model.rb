@@ -1,15 +1,17 @@
 require 'sqlite3'
-
-
+require 'bcrypt'
+# Funktionen är en hjälpfunktion som returnerar databasen
 def db()
   db = SQLite3::Database.new("db/recipes.db")
   db.results_as_hash = true
   return db
 end
 
+# Funktionen används för att hämta ett enskilt recept från databasen. Den inkluderar automatiskt ingredienser och mängder
+# Tar id för recept som argument och returnerar receptet som en hash
 def fetch_recipe(id)
   db = db()
-  recipe = db.execute("SELECT * FROM recipes WHERE id=?", id)
+  recipe = db.execute("SELECT * FROM recipes INNER JOIN users ON recipes.user_id = users.user_id WHERE id=?", id)
   ingredients = db.execute("SELECT * FROM rel_recipe_ingredients INNER JOIN ingredients ON rel_recipe_ingredients.ingredient_id = ingredients.id WHERE recipe_id=?", id)
 
   ingredients_arr = []
@@ -21,6 +23,8 @@ def fetch_recipe(id)
   return recipe
 end
 
+# Funktionen används för att updatera informationen i ett recept. Kan ej updatera bild. Den uppdaterar ingredienser genom att ta bort allt relevant i relationstabellen och sedan lägga till alla ingredienser igen.
+# Tar den nya verisionen av ett recept som argument och returnerar ingenting.
 def update_recipe(recipe)
   db = db()
 
@@ -28,9 +32,7 @@ def update_recipe(recipe)
 
 
   db.execute("DELETE FROM rel_recipe_ingredients WHERE recipe_id LIKE ?", recipe["id"])
-  p recipe
   ingredients = recipe["ingredients"]
-  p ingredients
   ingredients.each do |ingredient|
     earlier_ingredients = db.execute('SELECT id FROM ingredients WHERE ingredient=?', ingredient["name"])
     if earlier_ingredients.length > 0
@@ -48,32 +50,52 @@ def update_recipe(recipe)
 
 end
 
+# Fixar radbryt efter sql och forms
 def fix_linebreaks(text)
-  p text
-  new_str = text.split('\r\n')
-  p new_str
-  new_str
+  text.split('\r\n')
 end
 
+# Raderar receptet samt bild och innehållet i relationstabellen för ingredienser
+# Tar receptets id som input och ger ingen return
 def delete_recipe(id) 
   db = db()
+  image = db.execute('SELECT image_link FROM recipes WHERE id LIKE ?', id)
   db.execute("DELETE FROM recipes WHERE id LIKE ?", id)
   db.execute("DELETE FROM rel_recipe_ingredients WHERE recipe_id LIKE ?", id)
+  File.delete("public#{image[0]["image_link"]}")
 end
 
+# Funktionen hämtar alla recept utan ingredienser, de behövs inte för syftet. 
+# Tar ingen input och returnerar en array av recept
 def all_recipes()
   db = db()
   db.execute("SELECT * FROM recipes")
 end
 
-def add_recipe(recipe)
+#Funktionen lägger till ett recept, sparar en bild och lägger till alla ingredienser och lägger till i relationstabellen gär även mängder sparas. Om någon annan använt samma ingredient tidigare återanvänds samma instans igen. 
+def add_recipe(recipe, user)
   db = db()
 
-  db.execute('INSERT INTO recipes (title, description, instructions) VALUES (?, ?,  ?)', [recipe["title"], recipe["description"], recipe["instructions"]])
+  if params[:image] && params[:image][:filename]
+    filename = params[:image][:filename].split(".")
+    file = params[:image][:tempfile]
+    i = 0
+    # Indexerar bilderna så att det alltid blir en unik fil oavsett om de har samma namn
+    while File.exist?("./public/IMG/user_images/#{filename[0] + i.to_s + "." + filename[1]}")
+      i +=1
+    end
+    # Sparar bilden i directory 'IMG/user_images'
+    File.open("./public/IMG/user_images/#{filename[0] + i.to_s + "." + filename[1]}", 'wb') do |f|
+      f.write(file.read)
+    end  
+  end
 
-  id = db.execute('SELECT id FROM recipes WHERE title=?', recipe["title"])
+  db.execute('INSERT INTO recipes (title, description, instructions, user_id, image_link) VALUES (?, ?, ?, ?, ?)', [recipe["title"], recipe["description"], recipe["instructions"], user["user_id"], "/IMG/user_images/#{filename[0] + i.to_s + "." + filename[1]}"])
+
+  id = db.execute('SELECT id FROM recipes WHERE title=? AND user_id=?', [recipe["title"], user["user_id"]])
   id = id.first["id"]
 
+  #Lägger till ingredienser
   ingredients = recipe["ingredients"]
   ingredients.each do |ingredient|
     earlier_ingredients = db.execute('SELECT id FROM ingredients WHERE ingredient=?', ingredient["name"])
@@ -88,5 +110,91 @@ def add_recipe(recipe)
       ingredient_id = earlier_ingredients.first["id"]
       db.execute('INSERT INTO rel_recipe_ingredients (recipe_id, ingredient_id, amount) VALUES (?, ?, ?)', [id, ingredient_id, ingredient["amount"]])
     end
+  end 
+end
+
+#en funktion som hämtar alla en användares följare
+# Tar användarens id som argument och returnerar en array med personer som följer användaren. 
+def followers(user)
+  db = db()
+  db.execute('SELECT * FROM following INNER JOIN users ON following.user_id = users.user_id WHERE followed_id=?', user)
+end
+
+#en funktion som hämtar alla en användare följer
+# Tar användarens id som argument och returnerar en array med personer som användaren följer. 
+def follows(user)
+  db = db()
+  db.execute('SELECT * FROM following INNER JOIN users ON following.followed_id = users.user_id WHERE following.user_id=?', user)
+end
+
+# Hämtar all information om en användare, returnerar informationen
+def fetch_user(user_id)
+  db = db() 
+  db.execute('SELECT * FROM users WHERE user_id=?', user_id).first
+end
+
+#Tar fram basal information om alla  recept en användare har publicerat
+#tar användarens id som argument och returnerar en array av recept-hashes
+def users_recipes(id)
+  db = db()
+  db.execute("SELECT * FROM recipes WHERE user_id=?", id)
+end
+
+# En funktion som lägger till informationen om att användaren följer en annan användare
+# Tar användarnas id som argument och ger ingen return
+def follow(user_id, follow_id)
+  db = db()
+  db.execute('INSERT INTO following (user_id, followed_id) VALUES (?, ?)', [user_id, follow_id])
+
+end
+
+# En funktion som lägger till informationen om att användaren följer en annan användare
+# Tar användarnas id som argument och ger ingen return
+def unfollow(id, user_id)
+  db = db()
+  db.execute('DELETE FROM following WHERE user_id LIKE ? AND followed_id LIKE ?', [user_id, id])
+end
+
+# Registrerar en ny användare, Kollar om personen redan finns och om pwd och pwd_confirm är samma, sparar i db med krypterat lösenord användandes BCrypt2, Returnerar true om allt gick rätt, annars returnerar den vilken sökväg som ska användas
+# Tar params innehållandes användarnamn, lösenord och lösenordskonfirmering som argument
+def add_user(params)
+  user = params["user"]
+  pwd = params["pwd"]
+  pwd_confirm = params["pwd_confirm"]
+
+  db = db()
+  result = db.execute("SELECT user_id FROM users WHERE username=?", user)
+
+  if result.empty?
+    if pwd == pwd_confirm
+      pwd_digest = BCrypt::Password.create(pwd)
+      db.execute("INSERT INTO users(username, pwd_digest) VALUES(?,?)", [user, pwd_digest])
+      true
+    else
+      "/redirect"
+    end
+  else
+    "/login"
+  end
+end
+
+# Loggar in användaren och konrollerar först att användarnamn och lösenord är korrekt
+def login(params)
+  user = params["user"]
+  pwd = params["pwd"]
+
+  db = db()
+  result = db.execute("SELECT * FROM users WHERE username =?", user)
+
+  if result.empty?
+    redirect('/login')
+  end
+  user_id = result.first["user_id"]
+  pwd_digest = result.first["pwd_digest"]
+  
+  if BCrypt::Password.new(pwd_digest)==pwd
+    user_id
+  else
+    false
   end
 end
