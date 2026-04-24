@@ -5,6 +5,8 @@ require 'sinatra/reloader'
 require 'bcrypt'
 require_relative './model.rb'
 
+include Model
+
 enable :sessions
 
 # Hämtar användar_id från sessions och om någon är inloggad hämtas inforation från db
